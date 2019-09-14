@@ -21,7 +21,7 @@ class Environment:
         self.state_history = []
         self.act_policy = []
         self.observations = deque(maxlen=N)
-        self.time_delta = 0.1
+        self.time_delta = 0.001
 
         # environment params
         self.decay_rate = 1.
@@ -56,8 +56,8 @@ class Environment:
         return self.observations, reward, done
 
     def reset(self):
-        position = np.random.random()
-        self.goal = 0
+        position = 0.1
+        self.goal = 0.5
         self.observations.clear()
         for _ in range(self.observations.maxlen):
             self.observations.append((position, self.goal))

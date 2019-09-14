@@ -116,7 +116,7 @@ class Agent:
         if add_noise:
             for i in range(action_values.shape[0]):
                 action_values[i] += (self.noise.sample()-0.8) / \
-                    max(np.sqrt(self.episodes_passed/100), 1)
+                    max(np.sqrt(self.episodes_passed/1000), 1)
 
         return np.clip(action_values, -1, 1)
 
