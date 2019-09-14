@@ -10,7 +10,8 @@ def capture_camera_video():
     if not os.path.exists("./videos"):
         os.mkdir("./videos")
 
-    out = cv2.VideoWriter("./videos/output.mp4", -1, 60.0, (1280, 720))
+    out_file = "output_"+str(datetime.now().strftime("%Y_%m_%d_%H_%M_%S"))+".mp4"
+    out = cv2.VideoWriter("./videos/"+out_file, -1, 60.0, (1280, 720))
 
     while(True):
         ret, frame = capture.read()
