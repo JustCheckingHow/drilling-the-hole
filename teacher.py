@@ -13,7 +13,7 @@ class Logger:
         self.send_logs = send_logs
         if self.send_logs:
             self.experiment = Experiment(api_key="OZwyhJHyqzPZgHEpDFL1zxhyI",
-                            project_name="rl-in-wifi", workspace="wwydmanski")
+                            project_name="drilling-the-hole", workspace="wwydmanski")
         self.sent_mb = 0
 
         if self.send_logs:
@@ -46,7 +46,6 @@ class Logger:
 
             for i, obs in enumerate(observations):
                 self.experiment.log_metric(f"Observation {i}", obs, step=step)
-
             self.experiment.log_metrics(loss, step=step)
 
     def log_episode(self, cumulative_reward, speed, step):
