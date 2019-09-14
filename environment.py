@@ -1,5 +1,6 @@
 import numpy as np
 import math
+from collections import deque
 """
 ZERO ANGLE IS AT 12 o'clock 
 0 Hz is STOP signal 
@@ -19,12 +20,15 @@ class Environment:
         self.moves = np.arange(1)
         self.state_history = []
         self.act_policy = []
-        self.observations = []
+        self.observations = deque(maxlen=N)
+        self.time_delta = 0.1
 
         # environment params
         self.decay_rate = 1.
         self.time_delay = 1.
         self.radius = 2.
+
+        self.goal = 0
 
     def distance_travelled(self, angle, frequency, time):
         circumference = (2 * math.pi * self.radius)
@@ -38,26 +42,34 @@ class Environment:
         previous_angle, goal = self.state
         angle = self.distance_travelled(previous_angle, frequency,
                                         time)  # past state plus update
-        return angle
+        return angle%360/360.0
 
     def act(self, time, action):
-        next_observation = (0., False)
+        next_observation = (self.calculate_next_angle(action[0], time), self.goal)
         self.observations.append(next_observation)
+        self.state = next_observation
 
     def step(self, action):
-        self.act_policy.append(action)
+        # self.act_policy.append(action)
+        self.act(self.time_delta, action)
         reward, done = self._check_win(action)
-        return self.state, reward, done
+        return self.observations, reward, done
 
     def reset(self):
-        self.state = np.zeros((9))
+        position = np.random.random()
+        self.goal = 0
+        self.observations.clear()
+        for _ in range(self.observations.maxlen):
+            self.observations.append((position, self.goal))
+
+        self.state = (position, self.goal)
         self.moves = np.arange(9)
-        return self.state
+        return self.observations
 
     def _check_win(self, action):
-        if action[1]:
+        if action[1] > 0:
             # done
-            return 10 * (self.state[0] - self.state[1]), True
+            return -abs(10 * (self.state[0] - self.state[1])), True
         else:
             # not done
-            return (self.state[0] - self.state[1]), False
+            return -abs(self.state[0] - self.state[1]), False

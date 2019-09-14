@@ -24,16 +24,19 @@ class Logger:
             self.experiment.log_parameter("Episode count", episode_count)
             self.experiment.log_parameter("Max steps per episode", steps_per_ep)
 
-    def log_round(self, reward, cumulative_reward, state, loss, observations, step):
+    def log_round(self, actions, reward, cumulative_reward, loss, step):
         if self.send_logs:
-            self.experiment.log_metric("Round reward", np.mean(reward), step=step)
-            self.experiment.log_metric("Per-ep reward", np.mean(cumulative_reward), step=step)
-            self.experiment.log_metric("Angle", state, step=step)
+            self.experiment.log_metric("Round reward", reward, step=step)
+            self.experiment.log_metric("Per-ep reward", cumulative_reward, step=step)
+            self.experiment.log_metric("Action 1", actions[0], step=step)
+            self.experiment.log_metric("Action 2", actions[1], step=step)
 
             self.experiment.log_metrics(loss, step=step)
 
-    def log_episode(self, cumulative_reward, speed, step):
+    def log_episode(self, cumulative_reward, state, step):
         if self.send_logs:
+            self.experiment.log_metric("Angle", state[0], step=step)
+            self.experiment.log_metric("Goal", state[1], step=step)
             self.experiment.log_metric("Cumulative reward", cumulative_reward, step=step)
 
     def end(self):
@@ -50,10 +53,13 @@ class Teacher:
         num_agents (int): number of agents present at once
     """
 
-    def __init__(self, env, num_agents, preprocessor):
-        self.preprocess = preprocessor.preprocess
+    def __init__(self, env, preprocessor=None):
+        if preprocessor is not None:
+            self.preprocess = preprocessor.preprocess
+        else:
+            self.preprocess = None
+
         self.env = env
-        self.num_agents = num_agents
         self.CW = 16
         self.actions = None  # For debug purposes
         self.debug = None
@@ -72,52 +78,43 @@ class Teacher:
     #             if (any(done)):
     #                 break
 
-    def train(self, agent, EPISODE_COUNT, simTime, stepTime, history_length, send_logs=True, tags=None, parameters=None):
-        steps_per_ep = int(simTime / stepTime)
+    def train(self, agent, EPISODE_COUNT, max_steps, history_length, send_logs=True, tags=None, parameters=None):
+        steps_per_ep = max_steps
 
         logger = Logger(send_logs, tags, parameters)
         logger.begin_logging(EPISODE_COUNT, steps_per_ep)
         add_noise = True
 
-        obs_dim = 2
-
-        for i in range(EPISODE_COUNT):
+        for i in tqdm.trange(EPISODE_COUNT):
             if i >= EPISODE_COUNT * 4 / 5:
                 add_noise = False
 
             cumulative_reward = 0
 
             obs = self.env.reset()
-            obs = self.preprocess(np.reshape(obs, (-1, len(self.env.envs), obs_dim)))
+            obs = np.reshape(obs, (history_length, 1, 2))
 
-            with tqdm.trange(steps_per_ep) as t:
-                for step in t:
-                    self.debug = obs
+            for step in range(steps_per_ep):
+                self.debug = obs
+                self.actions = agent.act(obs, add_noise)
+                next_obs, reward, done = self.env.step(self.actions[0])
 
-                    self.actions = agent.act(np.array(obs, dtype=np.float32), add_noise)
-                    next_obs, reward, done = self.env.step(self.actions)
+                # obs = np.reshape(obs, (history_length, 1, 2))
 
-                    next_obs = self.preprocess(next_obs)
+                agent.step(obs, self.actions, reward, next_obs, done, 1)
 
-                    if step > (history_length / obs_dim):
-                        agent.step(obs, self.actions, reward, next_obs, done, 1)
+                cumulative_reward += np.mean(reward)
 
-                    obs = next_obs
-                    cumulative_reward += np.mean(reward)
+                logger.log_round(self.actions[0], reward, cumulative_reward, agent.get_loss(), i * steps_per_ep + step)
 
-                    if step > (history_length / obs_dim):
-                        logger.log_round(reward, cumulative_reward, agent.get_loss(), np.mean(obs, axis=0)[0],
-                                         i * steps_per_ep + step)
-                    t.set_postfix(mb_sent=f"{logger.sent_mb:.2f} Mb")
+                obs = np.reshape(next_obs, (history_length, 1, 2))
 
-                    if done:
-                        break
+                if done:
+                    break
 
-            self.env.close()
-
+            self.env.reset()
             agent.reset()
-
-            # logger.log_episode(cumulative_reward, logger.sent_mb/(simTime-time_offset), i)
+            logger.log_episode(cumulative_reward, obs[-1, 0], i)
 
         logger.end()
         print("Training finished.")
