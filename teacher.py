@@ -10,7 +10,8 @@ class Logger:
         self.send_logs = send_logs
         if self.send_logs:
             self.experiment = Experiment(api_key="OZwyhJHyqzPZgHEpDFL1zxhyI",
-                                         project_name="drilling-the-hole", workspace="wwydmanski")
+                                         project_name="drilling-the-hole",
+                                         workspace="wwydmanski")
         self.sent_mb = 0
 
         if self.send_logs:
@@ -22,12 +23,15 @@ class Logger:
     def begin_logging(self, episode_count, steps_per_ep):
         if self.send_logs:
             self.experiment.log_parameter("Episode count", episode_count)
-            self.experiment.log_parameter("Max steps per episode", steps_per_ep)
+            self.experiment.log_parameter("Max steps per episode",
+                                          steps_per_ep)
 
     def log_round(self, actions, reward, cumulative_reward, angle, loss, step):
         if self.send_logs:
             self.experiment.log_metric("Round reward", reward, step=step)
-            self.experiment.log_metric("Per-ep reward", cumulative_reward, step=step)
+            self.experiment.log_metric("Per-ep reward",
+                                       cumulative_reward,
+                                       step=step)
             self.experiment.log_metric("Action 1", actions[0], step=step)
             self.experiment.log_metric("Action 2", actions[1], step=step)
             self.experiment.log_metric("Current angle", angle, step=step)
@@ -38,7 +42,9 @@ class Logger:
         if self.send_logs:
             self.experiment.log_metric("Angle", state[0], step=step)
             self.experiment.log_metric("Goal", state[1], step=step)
-            self.experiment.log_metric("Cumulative reward", cumulative_reward, step=step)
+            self.experiment.log_metric("Cumulative reward",
+                                       cumulative_reward,
+                                       step=step)
 
     def end(self):
         if self.send_logs:
@@ -53,7 +59,6 @@ class Teacher:
         env (ns3-gym env): environment used for learning. NS3 program must be run before creating teacher
         num_agents (int): number of agents present at once
     """
-
     def __init__(self, env, preprocessor=None):
         if preprocessor is not None:
             self.preprocess = preprocessor.preprocess
@@ -79,7 +84,14 @@ class Teacher:
     #             if (any(done)):
     #                 break
 
-    def train(self, agent, EPISODE_COUNT, max_steps, history_length, send_logs=True, tags=None, parameters=None):
+    def train(self,
+              agent,
+              EPISODE_COUNT,
+              max_steps,
+              history_length,
+              send_logs=True,
+              tags=None,
+              parameters=None):
         steps_per_ep = max_steps
 
         logger = Logger(send_logs, tags, parameters)
@@ -106,7 +118,9 @@ class Teacher:
 
                 cumulative_reward += np.mean(reward)
 
-                logger.log_round(self.actions[0], reward, cumulative_reward, obs[-1, 0, 0], agent.get_loss(), i * steps_per_ep + step)
+                logger.log_round(self.actions[0], reward,
+                                 cumulative_reward, obs[-1, 0, 0],
+                                 agent.get_loss(), i * steps_per_ep + step)
 
                 obs = np.reshape(next_obs, (history_length, 1, 2))
 
@@ -125,7 +139,6 @@ class Teacher:
 # class AlreadyRunningException(Exception):
 #     def __init__(self, *args, **kwargs):
 #         return super().__init__(*args, **kwargs)
-
 
 # class EnvWrapper:
 #     def __init__(self, no_threads, env_constructor, **params):
