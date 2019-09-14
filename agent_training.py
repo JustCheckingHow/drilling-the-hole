@@ -8,7 +8,7 @@ history_length = 4
 
 env = Environment(history_length)
 teacher = Teacher(env)
-config = Config(buffer_size=4000, batch_size=256, gamma=0.98, tau=1e-3, lr_actor=lr_actor, lr_critic=lr_critic, update_every=4)
+config = Config(buffer_size=4000, batch_size=256, gamma=0.98, tau=1e-3, lr_actor=lr_actor, lr_critic=lr_critic, update_every=1)
 agent = Agent(history_length, action_size=2, config=config)
 
 logs = teacher.train(agent, 10000, 20, history_length)
