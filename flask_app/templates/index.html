@@ -1,0 +1,67 @@
+<html>
+  <head>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+        <!-- Compiled and minified JavaScript -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+        <script src="style.css"></script>
+        <script>
+            function checkInput() {
+                var event = window.event || event.which;
+
+                if (event.keyCode == 13) {
+                    event.preventDefault();
+                    addLine(document.getElementById("textinput").value);
+                    document.getElementById("textinput").value = "";
+                }
+
+                document.getElementById("textinput").style.height = (document.getElementById("textinput").scrollHeight) + "px";
+            }
+
+            function addLine(line) {
+                var textNode = document.createTextNode(line);
+                document.getElementById("consoletext").appendChild(textNode);
+            }
+        </script>
+            
+        <title>Pi Video Surveillance</title>
+  </head>
+  <body>
+    <header>
+        <nav>
+            <div class="nav-wrapper">
+                <a href="#" class="brand-logo">Bosch</a>
+                <ul id="nav-mobile" class="right hide-on-med-and-down">
+                <li><a href="#">Login</a></li>
+                <li><a href="#">Home</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+    <main>
+        <div class="container">
+            <div class="center-align"><h1>Bosch Motor Console</h1></div>
+            <div class="row">
+                    <div class="col s12 m6 center-align">
+                        <p class="z-depth-3">6-columns (one-half)
+                                <!-- <img src="{{ url_for('video_feed') }}"> -->
+                        </p>
+                        <div id = "background">
+                                <div id = "console">
+                                    <p id = "consoletext">
+                                        Ispum dolor ugin hegar<br/>
+                                        dank daniel for life
+                                    </p>
+                                </div>
+                        </div>
+                    </div>
+                    <div class="col s12 m6 right-align">
+                        <p class="z-depth-3">
+                            <input type="text" id = "textinput" onkeydown = "checkInput();"></input>
+                        </p>
+                    </div>
+            </div>
+        </div>
+    </main>
+  </body>
+</html>
