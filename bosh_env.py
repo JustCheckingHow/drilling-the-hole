@@ -5,23 +5,20 @@ from steering_python import SteeringPython
 
 import time
 
+
 class Environment:
     def __init__(self):
         self.sp = SteeringPython()
         self.sp.set_freq(1)
         self.last_dir = None
-        self.
 
-    def step(self, action):
-        if action[0]>0:
-            dir = 1
-        else:
-            dir = -1
-
-
-    def _move(self, dir):
-        if dir==1:
+    def step(self, action, done):
+        if -1<action<1:
+            self.sp.set_freq(action[0])
+        if action>0:
             self.sp.right()
-        elif dir==-1:
+        else:
             self.sp.left()
 
+        if done:
+            self.sp.stop()
