@@ -1,40 +1,58 @@
 import numpy as np
+"""
+ZERO ANGLE IS AT 12 o'clock 
+0 Hz is STOP signal 
+"""
+MAX_FREQ = 50
+
+# action = (freq, ?STOP)
+# Hz, True/False
+
+# observation - state
+# [(ang, goal), (angl, goal)....]
+
 
 class Environment:
-    def __init__(self):
-        self.state = np.zeros((9))
-        self.moves = np.arange(9)
-        self.draws = 0
-        self.p1_wins = 0
-        self.p2_wins = 0
+    def __init__(self, N):
+        self.state = np.zeros((1, 2))
+        self.moves = np.arange(1)
+        self.state_history = []
+        self.act_policy = []
+        self.observations = []
 
-    def act(self, player, action):
-        if self.state[action] == 0:
-            self.state[action] = player
+        # environment params
+        self.decay_rate = 1.
+        self.time_delay = 1.
 
-            reward, done = self._check_win()
-            return self.state, reward, done 
-        else:
-            return -1, -1, -1
+    def distance_travelled(angle1, frequency, time):
+        pass
+
+    def decay_function(self, time, frequency):
+        return frequency * np.exp(-self.decay_rate * time)
+
+    def calculate_next_angle(self, time, frequency):
+        angle = self.state[0] + self.time_delay * self.decay_function(
+            time, frequency)  # past state plus update
+        pass
+
+    def act(self, time, action):
+        next_observation = (0., False)
+        self.observations.append(next_observation)
+
+    def step(self, action):
+        self.act_policy.append(action)
+        reward, done = self._check_win(action)
+        return self.state, reward, done
 
     def reset(self):
         self.state = np.zeros((9))
         self.moves = np.arange(9)
         return self.state
-        
-    def _check_win(self):
-        winning_sets = [[0,1,2], [3,4,5], [6,7,8], [0,3,6], [1,4,7], [2,5,8], [0,4,8], [2,4,6]]
-        for winning_set in winning_sets:
-            res = set(self.state[winning_set])
-            if len(res)==1 and list(res)[0]!=0:
-                if list(res)[0]==1:
-                    self.p1_wins += 1
-                else:
-                    self.p2_wins += 1
 
-                return 1, True
-
-        if 0 not in set(self.state):
-            self.draws += 1
-            return 0, True
-        return 0, False
+    def _check_win(self, action):
+        if action[1]:
+            # done
+            return 10 * (self.state[0] - self.state[1]), True
+        else:
+            # not done
+            return (self.state[0] - self.state[1]), False
