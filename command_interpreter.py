@@ -11,66 +11,82 @@ class SteeringPythonMock:
     def pause(self, duration):
         print(f"paused for {duration} seconds")
 
+    def set_freq(self, freq):
+        print(f"set speed on {freq}")
+
     def stop(self):
         print("stopped")
 
+    def return_to_base(self):
+        print("returned to base position")
 
 class CommandInterpreter:
     def __init__(self):
         self.sp = SteeringPythonMock()
         self.SPEED = 0
-        self.PAUSE = 0
 
     def interpreter(self, command: str):
-        regexp = re.compile(r"(^(CLOCKWISE) (\d+)$|(^(PAUSE) (\d+) (ms|s|m)$)|(^(COUNTERCLOCKWISE) (\d+)$)|^(STOP)$)")
+        regexp = re.compile(r"((^\s*(TURN)\s+([+-]\d+\s*)$)|"
+                            r"(^\s*(PAUSE)\s+(\d+)\s*$)|"
+                            r"(^\s*(SPEED)\s+(\d+)\s*$)|"
+                            r"^\s*(STOP)\s*$)|"
+                            r"^\s*(BASE)\s*$")
         m = regexp.match(command)
         if m is not None:
-            command_words = m.group(0).split(" ")
+            command_words = m.group(0).split()
             cmd = command_words[0]
-            if cmd == "CLOCKWISE" and int(command_words[1]) > 0:
-                self.action_clockwise(command_words)
-            elif cmd == "COUNTERCLOCKWISE" and int(command_words[1]) > 0:
-                self.action_counterclockwise(command_words)
-            elif cmd == "PAUSE" and int(command_words[1]) > 0:
+            if cmd == "TURN":
+                value = command_words[1][1:]
+                if command_words[1][0] == "+":
+                    self.action_clockwise(value)
+                else:
+                    self.action_counterclockwise(value)
+            elif cmd == "PAUSE":
                 self.action_pause(command_words)
+            elif cmd == "SPEED":
+                self.action_speed(command_words)
             elif cmd == "STOP":
                 self.action_stop()
+            elif cmd == "BASE":
+                self.action_base()
         else:
             raise ValueError("command {} could not be interpreted".format(command))
 
-    def action_clockwise(self, command_words):
-        if int(command_words[1]) < 0:
-            raise ValueError("invalid values provided: {}".format(command_words[1]))
-        self.sp.move_angle_right(int(command_words[1]) % 360)
+    def action_clockwise(self, value):
+        if int(value) < 0:
+            raise ValueError("invalid values provided: {}".format(value))
+        self.sp.set_freq(self.SPEED)
+        self.sp.move_angle_right(int(value) % 360)
 
-    def action_counterclockwise(self, command_words):
-        if int(command_words[1]) < 0:
-            raise ValueError("invalid values provided: {}".format(command_words[1]))
-        self.sp.move_angle_left(int(command_words[1]) % 360)
+    def action_counterclockwise(self, value):
+        if int(value) < 0:
+            raise ValueError("invalid values provided: {}".format(value))
+        self.sp.set_freq(self.SPEED)
+        self.sp.move_angle_left(int(value) % 360)
 
     def action_pause(self, command_words):
         if int(command_words[1]) < 0:
             raise ValueError("invalid values provided: {}".format(command_words[1]))
-        unit = command_words[2]
-        if unit == "m":
-            duration = int(command_words[1]) * 60
-        elif unit == "ms":
-            duration = int(command_words[1]) / 100
-        else:
-            duration = int(command_words[1])
-        self.sp.pause(duration)
+        self.sp.pause(int(command_words[1])/100)
+
+    def action_speed(self, command_words):
+        if int(command_words[1]) < 0:
+            raise ValueError("invalid values provided: {}".format(command_words[1]))
+        self.SPEED = command_words[1]
 
     def action_stop(self):
         self.sp.stop()
 
-
+    def action_base(self):
+        self.sp.return_to_base()
 
 
 ci = CommandInterpreter()
-ci.interpreter("CLOCKWISE 700")
-ci.interpreter("CLOCKWISE -700")
-ci.interpreter("COUNTERCLOCKWISE 200")
-ci.interpreter("PAUSE 600 ms")
-ci.interpreter("PAUSE 600 m")
-ci.interpreter("PAUSE 60 s")
+ci.interpreter("SPEED 30")
+ci.interpreter("TURN -50")
+ci.interpreter("TURN -30")
+ci.interpreter("SPEED 10")
+ci.interpreter("TURN +370")
+ci.interpreter("PAUSE 476")
 ci.interpreter("STOP")
+ci.interpreter("BASE")
