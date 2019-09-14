@@ -60,7 +60,7 @@ class Environment:
         return self.calculate_next_angle(frequency, self.time_delta)
 
     def reset(self):
-        position = 0.1
+        position = np.random.random()
         self.goal = 0.5
         self.observations.clear()
         for _ in range(self.observations.maxlen):

@@ -34,7 +34,7 @@ class Agent:
 
         self.action_size = action_size
         self.noise = OUNoise(action_size, random_seed, mu=0.1, theta=0.3, sigma=0.7)
-
+        print("cuda:0" if torch.cuda.is_available() else "cpu")
         if actor_layers is None:
             self.actor_local = Actor(
                 state_size, action_size, random_seed, config.BATCH_SIZE).to(device)
@@ -116,7 +116,7 @@ class Agent:
         if add_noise:
             for i in range(action_values.shape[0]):
                 action_values[i] += (self.noise.sample()-0.8) / \
-                    max(np.sqrt(self.episodes_passed/1000), 1)
+                    max(self.episodes_passed/20, 1)
 
         return np.clip(action_values, -1, 1)
 
