@@ -1,0 +1,3 @@
+from video_api.read_from_cam import capture_camera_picture
+
+capture_camera_picture()
