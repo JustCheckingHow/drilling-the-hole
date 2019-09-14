@@ -21,7 +21,7 @@ class Environment:
         self.state_history = []
         self.act_policy = []
         self.observations = deque(maxlen=N)
-        self.time_delta = 1.0
+        self.time_delta = 0.001
 
         # environment params
         self.decay_rate = 1.
@@ -41,10 +41,11 @@ class Environment:
         previous_angle, goal = self.state
         angle = self.distance_travelled(previous_angle, frequency,
                                         time)  # past state plus update
-        return (angle%360)/360.0
+        return (angle % 360) / 360.0
 
     def act(self, time, action):
-        next_observation = (self.calculate_next_angle(action[0], time), self.goal)
+        next_observation = (self.calculate_next_angle(action[0],
+                                                      time), self.goal)
         self.observations.append(next_observation)
         self.state = next_observation
 
@@ -53,6 +54,10 @@ class Environment:
         self.act(self.time_delta, action)
         reward, done = self._check_win(action)
         return self.observations, reward, done
+
+    def update(self, frequency):
+        self.state_history.append(frequency)
+        return self.calculate_next_angle(frequency, self.time_delta)
 
     def reset(self):
         position = 0.1
