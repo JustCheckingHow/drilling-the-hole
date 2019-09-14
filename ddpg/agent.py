@@ -84,7 +84,7 @@ class Agent:
         self.config = config
 
         self.memory = ReplayBuffer(
-            action_size, self.config.BUFFER_SIZE, self.config.BATCH_SIZE, 42)
+            self.action_size, self.config.BUFFER_SIZE, self.config.BATCH_SIZE, 42)
 
         self.actor_optimizer = torch.optim.Adam(
             self.actor_local.parameters(), lr=self.config.LR_ACTOR)
@@ -95,7 +95,6 @@ class Agent:
         self.critic_scheduler = torch.optim.lr_scheduler.StepLR(self.critic_optimizer, step_size=5, gamma=0.5)
 
         self.t_step = 0
-
 
     def act(self, state, add_noise):
         """Get action according to actor policy
@@ -117,15 +116,16 @@ class Agent:
         if add_noise:
             for i in range(action_values.shape[0]):
                 action_values[i] += (self.noise.sample()-0.8) / \
-                    np.sqrt(self.episodes_passed)
+                    max(np.sqrt(self.episodes_passed/100), 1)
 
         return np.clip(action_values, -1, 1)
 
     def step(self, states, actions, rewards, next_states, dones, training_steps=1):
-        for action, reward, done, i in zip(actions, rewards, dones, range(len(rewards))):
-            assert states[:, i].ndim==2
-            assert next_states[:, i].ndim==2
-            self.memory.add(states[:, i], action, reward, next_states[:, i], done)
+        self.memory.add(states[:, 0], actions, rewards, next_states, dones)
+        # for action, reward, done, i in zip(actions, rewards, dones, range(len(rewards))):
+        #     assert states[:, i].ndim==2
+        #     assert next_states[:, i].ndim==2
+        #     self.memory.add(states[:, i], action, reward, next_states[:, i], done)
 
         self.t_step += 1
 
@@ -149,7 +149,6 @@ class Agent:
             gamma (float): discount factor
         """
         states, actions, rewards, next_states, dones = experiences
-
         max_Qhat = self.critic_target(
             next_states, self.actor_target(next_states))
 
