@@ -2,7 +2,7 @@ from environment import Environment
 from teacher import Teacher
 from ddpg.agent import Agent, Config
 
-lr_actor = 3e-4
+lr_actor = 7e-3
 lr_critic = 3e-4
 history_length = 4
 

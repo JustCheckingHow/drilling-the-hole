@@ -21,18 +21,17 @@ class Environment:
         self.state_history = []
         self.act_policy = []
         self.observations = deque(maxlen=N)
-        self.time_delta = 0.001
+        self.time_delta = 1.0
 
         # environment params
         self.decay_rate = 1.
         self.time_delay = 1.
         self.radius = 2.
 
-        self.goal = 0
+        self.goal = 0.5
 
     def distance_travelled(self, angle, frequency, time):
-        circumference = (2 * math.pi * self.radius)
-        rotations = frequency * circumference * time  # 1 Hz is one rotation per second
+        rotations = frequency * time  # 1 Hz is one rotation per second
         return angle + rotations * 360
 
     def decay_function(self, time, frequency):
@@ -42,7 +41,7 @@ class Environment:
         previous_angle, goal = self.state
         angle = self.distance_travelled(previous_angle, frequency,
                                         time)  # past state plus update
-        return angle%360/360.0
+        return (angle%360)/360.0
 
     def act(self, time, action):
         next_observation = (self.calculate_next_angle(action[0], time), self.goal)
@@ -67,7 +66,7 @@ class Environment:
         return self.observations
 
     def _check_win(self, action):
-        if action[1] > 0:
+        if action[1] > 10:
             # done
             return -abs(10 * (self.state[0] - self.state[1])), True
         else:

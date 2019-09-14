@@ -24,12 +24,13 @@ class Logger:
             self.experiment.log_parameter("Episode count", episode_count)
             self.experiment.log_parameter("Max steps per episode", steps_per_ep)
 
-    def log_round(self, actions, reward, cumulative_reward, loss, step):
+    def log_round(self, actions, reward, cumulative_reward, angle, loss, step):
         if self.send_logs:
             self.experiment.log_metric("Round reward", reward, step=step)
             self.experiment.log_metric("Per-ep reward", cumulative_reward, step=step)
             self.experiment.log_metric("Action 1", actions[0], step=step)
             self.experiment.log_metric("Action 2", actions[1], step=step)
+            self.experiment.log_metric("Current angle", angle, step=step)
 
             self.experiment.log_metrics(loss, step=step)
 
@@ -105,7 +106,7 @@ class Teacher:
 
                 cumulative_reward += np.mean(reward)
 
-                logger.log_round(self.actions[0], reward, cumulative_reward, agent.get_loss(), i * steps_per_ep + step)
+                logger.log_round(self.actions[0], reward, cumulative_reward, obs[-1, 0, 0], agent.get_loss(), i * steps_per_ep + step)
 
                 obs = np.reshape(next_obs, (history_length, 1, 2))
 
