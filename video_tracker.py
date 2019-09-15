@@ -54,7 +54,7 @@ class VideoTracker:
         self.time = None
         self.enable_calibration = False
         self.calibrated = False
-        self.function = self.solver.zeroero
+        self.function = self.solver.move_angle
         self.chain = []
 
     def calc_dist(self, p1, p2):
