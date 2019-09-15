@@ -14,6 +14,9 @@ import csv
 sct = mss()
 
 
+# ["SPEED", val], ["BASE",]
+
+
 class Config:
     def __init__(self):
         with open('config.csv', mode='r') as infile:
@@ -54,8 +57,27 @@ class VideoTracker:
         self.time = None
         self.enable_calibration = False
         self.calibrated = False
+
+        # TODO: Place ELA FUNCITON HERE
         self.function = self.solver.zeroero
         self.chain = []
+
+
+    def run_cmd_list(self, cmd_list):
+        for command in cmd_list:
+            if command[0] == 'SPEED':
+                self.change_frequency(command[1])
+            elif command[0] == 'BASE':
+                self.change_mode('rotation', command[1])
+            elif command[0] == 'STOP':
+                self.change_mode('angle', 0)
+            elif command[0] == 'TURN':
+                self.change_mode('rotation', command[1])
+            elif command[0] == 'PAUSE':
+                time.sleep(10)
+
+    def change_frequency(self, frequency_val):
+        self.solver.env.sp.set_frequency(frequency_val)
 
     def calc_dist(self, p1, p2):
         return math.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2)
@@ -113,16 +135,12 @@ class VideoTracker:
             # minute
             xp = int(r * np.sin(ang * (np.pi / 180))) + x
             yp = int(r * np.cos(ang * (np.pi / 180))) + y
-            # xpn = int(r * np.sin(angles[(i + 1) % angles_len] * (np.pi / 180))) + x
-            # ypn = int(r * np.cos(angles[(i + 1) % angles_len] * (np.pi / 180))) + y
             cv2.circle(img, (xp, yp), 3, (int(ang), 0, 0), -1)
             # reflect a point
             angp = 180 + ang
             # angp_rev = 180 + angles[(i + 1) % angles_len]
             xp2 = int(r * np.sin(angp * (np.pi / 180))) + x
             yp2 = int(r * np.cos(angp * (np.pi / 180))) + y
-            # xp2n = int(r * np.sin(angp_rev * (np.pi / 180))) + x
-            # yp2n = int(r * np.cos(angp_rev * (np.pi / 180))) + y
             cv2.circle(img, (xp2, yp2), 3, (0, int(ang), 255), -1)
             cv2.line(img, (xp, yp), (xp2, yp2), (255, 0, 0))
             tris.append(((xp, yp), ang))
@@ -134,7 +152,7 @@ class VideoTracker:
             self.function = self.solver.zeroero
             self.solver.goal = args[0]
         elif mode=="rotation":
-            self.solver.movement_angle = args[0]
+            self.solver.angle_left = args[0]
             self.function = self.solver.zeroangle
         self.time = None
         time.sleep(0.3)
