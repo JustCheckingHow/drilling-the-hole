@@ -136,6 +136,8 @@ class VideoTracker:
         elif mode=="rotation":
             self.solver.movement_angle = args[0]
             self.function = self.solver.zeroangle
+        self.time = None
+        time.sleep(0.3)
 
     def run_tracking(self):
         # while (self.vcap.isOpened()):
@@ -191,17 +193,11 @@ class VideoTracker:
 
                     # current_ms = self.vcap.get(cv2.CAP_PROP_POS_MSEC)
                     if self.time is None:
-                        # self.function(0, angle/360)
+                        self.function(0, angle/360)
                         self.time = time.time()
                     else:
                         pass
-                        # self.function(time.time()-self.time, angle/360)
-
-                    if self.solver.solved:
-                        print("SOLVED")
-                        mode, args = self.chain.pop(0)
-                        self.change_mode(mode, args)
-                        self.solver.solved = False
+                        self.function(time.time()-self.time, angle/360)
 
                 except ZeroDivisionError:
                         continue
@@ -219,6 +215,6 @@ class VideoTracker:
 if __name__ == "__main__":
     # vc = VideoTracker('rtsp://hackathon:!Hackath0n@192.168.0.2:554/2')
     vc = VideoTracker('output_left3pink.mp4')
-    vc.set_instructions([["angle", 0.0], ["angle", 0.1]])
+    # vc.set_instructions([["angle", 0.0], ["angle", 0.1]])
     vc.run_tracking()
 
