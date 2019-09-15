@@ -1,29 +1,13 @@
 import re
-from steering_python import SteeringPython
+import time
+import video_tracker
 
-class SteeringPythonMock:
-    def move_angle_right(self, angle):
-        print(f"moved {angle} degrees on right")
-
-    def move_angle_left(self, angle):
-        print(f"moved {angle} degrees on left")
-
-    def pause(self, duration):
-        print(f"paused for {duration} seconds")
-
-    def set_freq(self, freq):
-        print(f"set speed on {freq}")
-
-    def stop(self):
-        print("stopped")
-
-    def return_to_base(self):
-        print("returned to base position")
 
 class CommandInterpreter:
     def __init__(self):
-        self.sp = SteeringPythonMock()
+        self.list_of_instructions = []
         self.SPEED = 0
+
 
     def interpreter(self, command: str):
         print("command: ", command)
@@ -38,54 +22,27 @@ class CommandInterpreter:
                 command_words = m.group(0).split()
                 cmd = command_words[0]
                 if cmd == "TURN":
-                    value = command_words[1][1:]
-                    if command_words[1][0] == "+":
-                        self.action_clockwise(value)
-                    else:
-                        self.action_counterclockwise(value)
+                    value = command_words[1]
+                    self.list_of_instructions.append(["TURN", int(value)])
+                    print("TURN")
                 elif cmd == "PAUSE":
-                    self.action_pause(command_words)
+                    self.list_of_instructions.append(["PAUSE"])
+                    print("PAUSE")
                 elif cmd == "SPEED":
-                    self.action_speed(command_words)
+                    print("SPEED")
+                    self.list_of_instructions.append(["SPEED", int(command_words[1])])
                 elif cmd == "STOP":
-                    self.action_stop()
+                    print("STOP")
+                    self.list_of_instructions.append(["STOP"])
+
                 elif cmd == "BASE":
-                    self.action_base()
+                    print("BASE")
+                    self.list_of_instructions.append(["BASE"])
             else:
                 print("command {} could not be interpreted".format(command))
         except TypeError:
             pass
 
-    def action_clockwise(self, value):
-        if int(value) < 0:
-            print("invalid values provided: {}".format(value))
-        else:
-            self.sp.move_angle_right(int(value) % 360)
-
-    def action_counterclockwise(self, value):
-        if int(value) < 0:
-            print("invalid values provided: {}".format(value))
-        else:
-            self.sp.move_angle_left(int(value) % 360)
-
-    def action_pause(self, command_words):
-        if int(command_words[1]) < 0:
-            print("invalid values provided: {}".format(command_words[1]))
-        else:
-            self.sp.pause(int(command_words[1])/100)
-
-    def action_speed(self, command_words):
-        if int(command_words[1]) < 0:
-            print("invalid values provided: {}".format(command_words[1]))
-        else:
-            self.SPEED = command_words[1] if command_words[1] <= 50 else 50
-            self.sp.set_freq(self.SPEED)
-
-    def action_stop(self):
-        self.sp.stop()
-
-    def action_base(self):
-        self.sp.return_to_base()
 
 if __name__ == "__main__":
     ci = CommandInterpreter()
