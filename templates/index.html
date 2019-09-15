@@ -1,6 +1,5 @@
 <html>
   <head>
-    // d3js
     <script src="//cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.23.1/babel.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/d3/4.6.0/d3.min.js"></script>
     <script src="//unpkg.com/d3-radial-axis@1.5/dist/d3-radial-axis.min.js"></script>
@@ -109,12 +108,8 @@
   <body>
     <header>
       <nav>
-        <div class="nav-wrapper">
-          <a href="#" class="brand-logo">Bosch</a>
-          <ul id="nav-mobile" class="right hide-on-med-and-down">
-            <li><a href="#">Login</a></li>
-            <li><a href="#">Home</a></li>
-          </ul>
+        <div class="nav-wrapper red accent-4">
+          <a href="#" class="brand-logo center">Bosch</a>
         </div>
       </nav>
     </header>
@@ -162,13 +157,13 @@
             <div class="row">
               <div class="col s1"></div>
               <div class="col s2">
-                <a class="waves-effect waves-light btn" onclick="baseButton()"
+                <a class="waves-effect waves-light btn grey" onclick="baseButton()"
                   >BASE</a
                 >
               </div>
               <div class="col s1"></div>
               <div class="col s2">
-                <a class="waves-effect waves-light btn" onclick="turnButton()"
+                <a class="waves-effect waves-light btn grey" onclick="turnButton()"
                   >TURN</a
                 >
               </div>
@@ -194,7 +189,7 @@
               </div>
               <div class="col s1"></div>
               <div class="col s2">
-                <a class="waves-effect waves-light btn" onclick="pauseButton()"
+                <a class="waves-effect waves-light btn grey" onclick="pauseButton()"
                   >PAUSE</a
                 >
               </div>
@@ -208,7 +203,7 @@
                 />
               </div>
             </div>
-            <div class="row">
+            <div class="row center-align">
                 <div class="switch" style="width:350" >
                   <label>
                     Disable ELA
@@ -218,6 +213,15 @@
                   </label>
                 </div>
               </div>
+            <div class="row right-align">
+              <div class="col s2">Parameters</div>
+            </div>
+            <div class="row left-align">
+              <div class="col s6" id="velocity_text">Velocity:</div>
+              <div class="col s6" id="velocity_value">0</div>
+              <div class="col s6" id="frequency_text">Frequency:</div>
+              <div class="col s6" id="frequency_value">0</div>
+            </div>
 
       </div>
     </main>
