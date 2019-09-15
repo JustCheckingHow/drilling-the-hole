@@ -84,12 +84,6 @@
         send_command(speed_line);
       }
 
-	  function scrollVal(){
-        speed_val = document.getElementById("speed_range").value;
-		document.getElementById('speedNumber').innerHTML=speed_val;
-		
-	  }
-
       function clearTerminal() {
         textarea = document.getElementById("terminal").value;
         text_list = textarea.split("\n");
@@ -153,18 +147,27 @@
                   id="speed_range"
                   min="0"
                   max="50"
-				  value="1"
                   step="1"
                   onchange="speedScroll()"
-				  oninput="scrollVal()"
-				  
                 />
 
               </div>
-			  <div class="col s1" id="speedNumber">1</div>
+              <div class="col s1"></div>
             </div>
             <div class="row">
-              <div class="col s2">Degrees:</div>
+              <div class="col s1"></div>
+              <div class="col s2">
+                <a class="waves-effect waves-light btn grey" onclick="baseButton()"
+                  >BASE</a
+                >
+              </div>
+              <div class="col s1"></div>
+              <div class="col s2">
+                <a class="waves-effect waves-light btn grey" onclick="turnButton()"
+                  >TURN</a
+                >
+              </div>
+              <div class="col s1"></div>
               <div class="col s4" style="position:relative; top:-10px;">
                 <input
                   placeholder="Rotation degrees"
@@ -173,42 +176,9 @@
                   class="validate"
                 />
               </div>
-			</div>
-            <div class="row">
-				<div class="col s9"></div>
-              <div class="col s3">
-                <a class="waves-effect waves-light btn" onclick="turnButton()"
-                  >TURN</a
-                >
-              </div>
-			</div>
-			<hr>
-            <div class="row">
-              <div class="col s2">Pause Time:</div>
-              <div class="col s4" style="position:relative; top:-10px;">
-                <input
-                  placeholder="Time"
-                  id="pause_value"
-                  type="text"
-                  class="validate"
-                />
-              </div>
-              <div class="col s1"></div>
-              <div class="col s5">
-                <a class="waves-effect waves-light btn" onclick="pauseButton()" style="width:73px"
-                  >PAUSE</a
-                >
-              </div>
             </div>
             <div class="row">
-				<div class="col s1">
-                <a class="waves-effect waves-light btn" onclick="baseButton()"
-                  >BASE</a
-                >
-              </div>
               <div class="col s1"></div>
-            </div>
-            <div class="row">
               <div class="col s2">
                 <a
                   class="waves-effect waves-light btn"
@@ -217,13 +187,28 @@
                   >STOP</a
                 >
               </div>
-			</div>
-            <div class="row">
+              <div class="col s1"></div>
+              <div class="col s2">
+                <a class="waves-effect waves-light btn grey" onclick="pauseButton()"
+                  >PAUSE</a
+                >
+              </div>
+              <div class="col s1"></div>
+              <div class="col s4" style="position:relative; top:-10px;">
+                <input
+                  placeholder="Time"
+                  id="pause_value"
+                  type="text"
+                  class="validate"
+                />
+              </div>
+            </div>
+            <div class="row center-align">
                 <div class="switch" style="width:350" >
                   <label>
                     Disable ELA
                     <input id="switchELA" type="checkbox" onchange="checkELAstatus()"/>
-                    <span class="lever"></span>
+                    <span class="lever" style="width:50; "></span>
                     Enable ELA
                   </label>
                 </div>
