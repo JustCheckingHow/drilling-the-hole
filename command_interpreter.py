@@ -26,53 +26,60 @@ class CommandInterpreter:
         self.SPEED = 0
 
     def interpreter(self, command: str):
-        regexp = re.compile(r"((^\s*(TURN)\s+([+-]\d+\s*)$)|"
-                            r"(^\s*(PAUSE)\s+(\d+)\s*$)|"
-                            r"(^\s*(SPEED)\s+(\d+)\s*$)|"
-                            r"^\s*(STOP)\s*$)|"
-                            r"^\s*(BASE)\s*$")
-        m = regexp.match(command)
-        if m is not None:
-            command_words = m.group(0).split()
-            cmd = command_words[0]
-            if cmd == "TURN":
-                value = command_words[1][1:]
-                if command_words[1][0] == "+":
-                    self.action_clockwise(value)
-                else:
-                    self.action_counterclockwise(value)
-            elif cmd == "PAUSE":
-                self.action_pause(command_words)
-            elif cmd == "SPEED":
-                self.action_speed(command_words)
-            elif cmd == "STOP":
-                self.action_stop()
-            elif cmd == "BASE":
-                self.action_base()
-        else:
-            raise ValueError("command {} could not be interpreted".format(command))
+        print("command: ", command)
+        try:
+            regexp = re.compile(r"((^\s*(TURN)\s+([+-]\d+\s*)$)|"
+                                r"(^\s*(PAUSE)\s+(\d+)\s*$)|"
+                                r"(^\s*(SPEED)\s+(\d+)\s*$)|"
+                                r"^\s*(STOP)\s*$)|"
+                                r"^\s*(BASE)\s*$")
+            m = regexp.match(command)
+            if m is not None:
+                command_words = m.group(0).split()
+                cmd = command_words[0]
+                if cmd == "TURN":
+                    value = command_words[1][1:]
+                    if command_words[1][0] == "+":
+                        self.action_clockwise(value)
+                    else:
+                        self.action_counterclockwise(value)
+                elif cmd == "PAUSE":
+                    self.action_pause(command_words)
+                elif cmd == "SPEED":
+                    self.action_speed(command_words)
+                elif cmd == "STOP":
+                    self.action_stop()
+                elif cmd == "BASE":
+                    self.action_base()
+            else:
+                print("command {} could not be interpreted".format(command))
+        except TypeError:
+            pass
 
     def action_clockwise(self, value):
         if int(value) < 0:
-            raise ValueError("invalid values provided: {}".format(value))
-        self.sp.set_freq(self.SPEED)
-        self.sp.move_angle_right(int(value) % 360)
+            print("invalid values provided: {}".format(value))
+        else:
+            self.sp.move_angle_right(int(value) % 360)
 
     def action_counterclockwise(self, value):
         if int(value) < 0:
-            raise ValueError("invalid values provided: {}".format(value))
-        self.sp.set_freq(self.SPEED)
-        self.sp.move_angle_left(int(value) % 360)
+            print("invalid values provided: {}".format(value))
+        else:
+            self.sp.move_angle_left(int(value) % 360)
 
     def action_pause(self, command_words):
         if int(command_words[1]) < 0:
-            raise ValueError("invalid values provided: {}".format(command_words[1]))
-        self.sp.pause(int(command_words[1])/100)
+            print("invalid values provided: {}".format(command_words[1]))
+        else:
+            self.sp.pause(int(command_words[1])/100)
 
     def action_speed(self, command_words):
         if int(command_words[1]) < 0:
-            raise ValueError("invalid values provided: {}".format(command_words[1]))
-        self.SPEED = command_words[1]
+            print("invalid values provided: {}".format(command_words[1]))
+        else:
+            self.SPEED = command_words[1] if command_words[1] <= 50 else 50
+            self.sp.set_freq(self.SPEED)
 
     def action_stop(self):
         self.sp.stop()
@@ -83,6 +90,7 @@ class CommandInterpreter:
 if __name__ == "__main__":
     ci = CommandInterpreter()
     ci.interpreter("SPEED 30")
+    ci.interpreter("TURN +200")
     ci.interpreter("TURN -50")
     ci.interpreter("TURN -30")
     ci.interpreter("SPEED 10")
