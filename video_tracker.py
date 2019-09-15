@@ -60,6 +60,7 @@ class VideoTracker:
 
         # TODO: Place ELA FUNCITON HERE
         self.function = self.solver.zeroero
+        self.function = self.solver.move_angle
         self.chain = []
 
 
@@ -67,12 +68,16 @@ class VideoTracker:
         for command in cmd_list:
             if command[0] == 'SPEED':
                 self.change_frequency(command[1])
+                self.run_tracking()
             elif command[0] == 'BASE':
                 self.change_mode('rotation', command[1])
+                self.run_tracking()
             elif command[0] == 'STOP':
                 self.change_mode('angle', 0)
+                self.run_tracking()
             elif command[0] == 'TURN':
                 self.change_mode('rotation', command[1])
+                self.run_tracking()
             elif command[0] == 'PAUSE':
                 time.sleep(10)
 

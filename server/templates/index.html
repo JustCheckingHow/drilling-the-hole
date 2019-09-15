@@ -37,7 +37,8 @@
         if (event.keyCode == 13) {
           event.preventDefault();
           line = document.getElementById("command").value;
-          addLine(line.toUpperCase() + "\n");
+          line = line.toUpperCase()
+          addLine(line + "\n");
           send_command(line);
           document.getElementById("command").value = "";
         }
