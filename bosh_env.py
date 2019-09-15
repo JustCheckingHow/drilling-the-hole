@@ -11,14 +11,26 @@ class Environment:
         self.sp = SteeringPython()
         self.sp.set_freq(1)
         self.last_dir = None
+        self.busy = False
+        self.last_poll = 0
 
     def step(self, action, done):
-        if -1<action<1:
-            self.sp.set_freq(action[0])
-        if action>0:
-            self.sp.right()
-        else:
-            self.sp.left()
+        if not self.busy:
+            if -1<action<1:
+                self.sp.set_freq(action)
 
-        if done:
-            self.sp.stop()
+            if self.last_dir is None:
+                if action==1:
+                    self.sp.right()
+                    self.last_dir=1
+                elif action==-1:
+                    self.sp.left()
+                    self.last_dir=-1
+
+            if done:
+                self.sp.stop()
+            self.last_poll = time.time()
+            self.busy = True
+        else:
+            if time.time()-self.last_poll>0.2:
+                self.busy = False

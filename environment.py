@@ -55,6 +55,7 @@ class Environment:
 
     def step(self, action):
         # self.act_policy.append(action)
+        action = [action, self.goal]
         next_obs = self.act(self.time_delta, action)
         reward, done = self._check_win(action)
         print(f"reward: {reward}")

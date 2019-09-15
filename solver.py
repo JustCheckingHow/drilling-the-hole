@@ -10,7 +10,7 @@ class Solver:
         self.speed, self.normalized_speed = 0, 0
         self.delta = None
         # self.position = np.asarray(env.reset()[-1][0])
-        self.goal = 0
+        self.goal = 0.5
         self.final_action = None
         self.finished = False
         self.last_pos = 0
@@ -22,13 +22,13 @@ class Solver:
         self.position = None
 
     def zero(self, time, position):
-        delta = time-self.last_time
+        delta = 0.2
         self.last_time = time
 
         direction = np.sign(self.goal - position) * self.coeff
 
-        if self.last_pos_2 == position:
-            self.coeff *= self.coeff_decay
+        # if self.last_pos_2 == position:
+        #     self.coeff *= self.coeff_decay
 
         self.last_pos_2 = self.last_pos
         self.last_pos = position
@@ -49,7 +49,7 @@ class Solver:
                 self.final_action = np.abs(self.goal - position) / real_speed
             else:
                 self.position = position
-            print(f"Position: {self.position}, Goal: {self.goal}, delta: {self.delta}, speed: {real_speed}")
+            print(f"Position: {self.position}, Goal: {self.goal}, delta: {self.delta}, speed: {real_speed}, direction: {direction}")
 
         else:
             self.position = position
@@ -57,6 +57,7 @@ class Solver:
         if self.final_action is None:
             self.env.step(direction, False)
         else:
+            print("FINAL")
             self.env.step(self.final_action, True)
             self.finished = True
 
