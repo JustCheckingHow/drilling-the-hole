@@ -1,0 +1,25 @@
+<html>
+	<head>
+	<script>
+		function send_command(command) {
+  		var xhttp = new XMLHttpRequest();
+  		xhttp.onreadystatechange = function() {
+  		  if (this.readyState == 4 && this.status == 200) {
+  		   document.getElementById("demo").innerHTML = this.responseText;
+  		  }
+  		};
+  		xhttp.open("GET", "http://localhost:5000?command="+command, true);
+  		xhttp.send();
+		}
+	</script>
+	</head>
+	<body>
+		<div class="button" onclick=send_command('left')>LEFT</div>
+		<div class="button" onclick=send_command('right')>RIGHT</div>
+		<div class="button" onclick=send_command('stop')>STOP</div>
+		<div id="demo"></div>
+
+		<textarea></textarea>
+
+	</body>
+</html>
