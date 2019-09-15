@@ -156,18 +156,6 @@
             </div>
             <div class="row">
               <div class="col s1"></div>
-              <div class="col s2">
-                <a class="waves-effect waves-light btn grey" onclick="baseButton()"
-                  >BASE</a
-                >
-              </div>
-              <div class="col s1"></div>
-              <div class="col s2">
-                <a class="waves-effect waves-light btn grey" onclick="turnButton()"
-                  >TURN</a
-                >
-              </div>
-              <div class="col s1"></div>
               <div class="col s4" style="position:relative; top:-10px;">
                 <input
                   placeholder="Rotation degrees"
@@ -176,8 +164,39 @@
                   class="validate"
                 />
               </div>
+              <div class="col s1"></div>
+              <div class="col s2">
+                <a class="waves-effect waves-light btn grey" onclick="turnButton()"
+                  >TURN</a
+                >
+              </div>
+
+              <div class="col s1"></div>
+              <div class="col s2">
+                <a class="waves-effect waves-light btn grey" onclick="baseButton()"
+                  >BASE</a
+                >
+              </div>
             </div>
             <div class="row">
+            <div class="col s1"></div>
+              <div class="col s4" style="position:relative; top:-10px;">
+                <input
+                  placeholder="Time"
+                  id="pause_value"
+                  type="text"
+                  class="validate"
+                />
+              </div>
+              
+              <div class="col s1"></div>
+              <div class="col s2">
+                <a class="waves-effect waves-light btn grey" onclick="pauseButton()"
+                  >PAUSE</a
+                >
+              </div>
+
+
               <div class="col s1"></div>
               <div class="col s2">
                 <a
@@ -186,21 +205,6 @@
                   onclick="stopButton()"
                   >STOP</a
                 >
-              </div>
-              <div class="col s1"></div>
-              <div class="col s2">
-                <a class="waves-effect waves-light btn grey" onclick="pauseButton()"
-                  >PAUSE</a
-                >
-              </div>
-              <div class="col s1"></div>
-              <div class="col s4" style="position:relative; top:-10px;">
-                <input
-                  placeholder="Time"
-                  id="pause_value"
-                  type="text"
-                  class="validate"
-                />
               </div>
             </div>
             <div class="row center-align">
