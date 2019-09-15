@@ -28,6 +28,8 @@ class VideoTracker:
         self.solver = Solver(Environment())
         self.vcap = ScreenCap()
         self.large_circle = None
+        self.frame_no=0
+        self.time = None
 
     def calc_dist(self, p1, p2):
         return math.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2)
@@ -46,8 +48,8 @@ class VideoTracker:
         """
         Image must be in greyscale 
         """
-        circles = cv2.HoughCircles(img, cv2.HOUGH_GRADIENT, 1.2, 100, 140, 150,
-                                   140)
+        circles = cv2.HoughCircles(img, cv2.HOUGH_GRADIENT, 1.2, 100, 50, 150,
+                                   100)
         circle_mask = np.zeros(img.shape[:2], dtype='uint8')
 
         large_circle = None
@@ -76,7 +78,7 @@ class VideoTracker:
         x, y, r = large_circle
         # generate a set of points on a circle
         tris = []
-        angles = np.arange(0, 180, 30)
+        angles = np.arange(0, 180, 15)
         angles_len = len(angles)
         for i, ang in enumerate(angles):
             # minute
@@ -109,9 +111,8 @@ class VideoTracker:
             hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
             # Range for upper range
-
-            lower_red = np.array([125, 140, 94])
-            upper_red = np.array([150, 186, 190])
+            lower_red = np.array([128, 165, 110])
+            upper_red = np.array([148, 185, 197])
 
             mask = cv2.inRange(hsv, lower_red, upper_red)
             # Generating the final mask to detect red color
@@ -150,10 +151,13 @@ class VideoTracker:
 
                     # current_ms = self.vcap.get(cv2.CAP_PROP_POS_MSEC)
                     tm = time.time()
-                    self.solver.zero(tm, angle/360)
-
+                    if self.time is None:
+                        self.solver.zeroero(0, angle/360)
+                        self.time = time.time()
+                    else:
+                        self.solver.zeroero(time.time()-self.time, angle/360)
                 except ZeroDivisionError:
-                    continue
+                        continue
 
             cv2.putText(frame, text, (10, h - 20),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
