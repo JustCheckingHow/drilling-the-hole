@@ -22,37 +22,57 @@ class Solver:
         self.last_time = time.time()
         self.position = None
         self.position_sum = 0
+
         self.starting_position = 0
-        self.movement_angle = 0.25
-        self.inertia = 0.09
+        self.movement_angle = 0.125
+        self.ctr_clockwise_inertia = 0.15
+        self.clockwise_inertia = 0.19
+
+        self.runup_time = 0.3
+        self.solved = False
+
+        self.direction = -1
 
     def calibrate(self, tm, position):
-        print(tm, position)
         if tm == 0:
             self.starting_position = position
-            self.env.step(-1, False)
-        if tm >= 2 and self.starting_position+self.inertia> position > self.starting_position-self.inertia:
+            self.env.step(self.direction, False)
+        if tm >= self.runup_time and self.starting_position+self.ctr_clockwise_inertia> position > self.starting_position-self.ctr_clockwise_inertia:
             self.env.step(0, True)
         if tm >= 3 and self.env.stopped:
             print(f"Inertia degrees: {position - self.starting_position}")
 
-    def zeroero(self, tm , position):
+    def zeroero(self, tm, position):
         if tm == 0:
             print(tm, position)
+            self.direction = np.sign(position - self.goal)
+            self.env.step(self.direction, False)
+        else:
+            if self.direction == -1:
+                if tm >= self.runup_time and self.goal - 0.05 > position > (self.goal - self.ctr_clockwise_inertia) and not self.env.stopped:
+                    print(f"Position: {position}")
+                    self.env.step(0, True)
+                    self.solved = True
+            elif self.direction == 1:
+                if tm >= self.runup_time and self.goal + self.clockwise_inertia > position > (self.goal - 0.05) and not self.env.stopped:
+                    print(f"Position: {position}")
+                    self.env.step(0, True)
+                    self.solved = True
 
-            self.env.step(-1, False)
-        if tm >= 2 and 0.45 > position > 0.30 and not self.env.stopped:
-            print(f"Position: {position}")
-            self.env.step(0, True)
-
+    # def homing(self, tm, position):
     def zeroangle(self, tm , position):
         if tm == 0:
             self.starting_position = position
-            self.env.step(-1, False)
+            self.env.step(self.direction, False)
 
-        if tm >= 2 and self.starting_position+self.movement_angle > position > self.starting_position+self.movement_angle-0.09:
+        if tm >= self.runup_time and self.starting_position+self.movement_angle > position > self.starting_position+self.movement_angle-self.ctr_clockwise_inertia:
             print(f"Position: {position}")
             self.env.step(0, True)
+            self.solved = True
+
+    def reset(self):
+        self.direction *= -1
+        self.solved = False
 
     def zero(self, tm, position):
         delta = 0.2

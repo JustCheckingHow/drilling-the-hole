@@ -9,8 +9,29 @@ import cv2
 from mss import mss
 from PIL import Image
 import time
+import csv
 
 sct = mss()
+
+
+class Config:
+    def __init__(self):
+        with open('config.csv', mode='r') as infile:
+            reader = csv.reader(infile)
+            self.mydict = {rows[0]: rows[1] for rows in reader}
+        print(self.mydict)
+
+    def get(self, key):
+        return self.mydict[key]
+
+    def set(self, key, value):
+        self.mydict[key] = value
+
+    def __del__(self):
+        with open('config.csv', mode='w') as infile:
+            # writer = csv.DictWriter(infile, ["key", "val"])
+            for key, item in self.mydict.items():
+                infile.write(f"{key},{item}\n")
 
 
 class ScreenCap:
@@ -27,12 +48,20 @@ class VideoTracker:
         # self.vcap = cv2.VideoCapture(video_stream)
         self.solver = Solver(Environment())
         self.vcap = ScreenCap()
+        self.config = Config()
         self.large_circle = None
         self.frame_no=0
         self.time = None
+        self.enable_calibration = False
+        self.calibrated = False
+        self.function = self.solver.zeroero
+        self.chain = []
 
     def calc_dist(self, p1, p2):
         return math.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2)
+
+    def set_instructions(self, instructions):
+        self.chain = instructions
 
     def which_angle(self, tris, tracker_center):
         closest = None
@@ -78,7 +107,7 @@ class VideoTracker:
         x, y, r = large_circle
         # generate a set of points on a circle
         tris = []
-        angles = np.arange(0, 180, 15)
+        angles = np.arange(0, 180, 10)
         angles_len = len(angles)
         for i, ang in enumerate(angles):
             # minute
@@ -100,6 +129,16 @@ class VideoTracker:
             tris.append(((xp2, yp2), angp))
         return tris
 
+    def change_mode(self, mode, *args):
+        if mode=="angle":
+            self.function = self.solver.zeroero
+            self.solver.goal = args[0]
+        elif mode=="rotation":
+            self.solver.movement_angle = args[0]
+            self.function = self.solver.zeroangle
+        self.time = None
+        time.sleep(0.3)
+
     def run_tracking(self):
         # while (self.vcap.isOpened()):
         while True:
@@ -111,8 +150,11 @@ class VideoTracker:
             hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
             # Range for upper range
-            lower_red = np.array([128, 165, 110])
-            upper_red = np.array([148, 185, 197])
+            lower = eval(self.config.get("pixels_lower").replace("  ", " ").replace(" ", ","))
+            upper = eval(self.config.get("pixels_upper").replace("  ", " ").replace(" ", ","))
+
+            lower_red = np.array(lower)
+            upper_red = np.array(upper)
 
             mask = cv2.inRange(hsv, lower_red, upper_red)
             # Generating the final mask to detect red color
@@ -150,12 +192,13 @@ class VideoTracker:
                     text = f"Angle: {angle}"
 
                     # current_ms = self.vcap.get(cv2.CAP_PROP_POS_MSEC)
-                    tm = time.time()
                     if self.time is None:
-                        self.solver.zeroero(0, angle/360)
+                        self.function(0, angle/360)
                         self.time = time.time()
                     else:
-                        self.solver.zeroero(time.time()-self.time, angle/360)
+                        pass
+                        self.function(time.time()-self.time, angle/360)
+
                 except ZeroDivisionError:
                         continue
 
@@ -172,4 +215,6 @@ class VideoTracker:
 if __name__ == "__main__":
     # vc = VideoTracker('rtsp://hackathon:!Hackath0n@192.168.0.2:554/2')
     vc = VideoTracker('output_left3pink.mp4')
+    # vc.set_instructions([["angle", 0.0], ["angle", 0.1]])
     vc.run_tracking()
+
