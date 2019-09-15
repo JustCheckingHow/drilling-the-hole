@@ -8,7 +8,7 @@ cors = CORS(app)
 def home():
     data = request.args.get("command")
     print(data)
-    return ""
-    
+    return  render_template("index.html")
+
 if __name__ == "__main__":
     app.run(debug=True)
