@@ -33,6 +33,18 @@ class Solver:
 
         self.direction = -1
 
+    def set_goal(self, goal):
+        """
+        set goal
+        """
+        self.goal = goal
+
+    def set_angle(self, angle):
+        """
+        set angle 
+        """
+        self.angle_left = angle
+
     def calibrate(self, tm, position):
         if tm == 0:
             self.starting_position = position
@@ -43,6 +55,9 @@ class Solver:
             print(f"Inertia degrees: {position - self.starting_position}")
 
     def zeroero(self, tm, position):
+        """
+        function for moving to a position (specific angle)
+        """
         if tm == 0:
             print(tm, position)
             self.direction = np.sign(position - self.goal)
@@ -60,6 +75,10 @@ class Solver:
                     self.solved = True
 
     def move_angle(self, tm, position):
+        """
+        change angle_left instead of goal to adjust
+        position is the current position 
+        """
         if tm == 0:
             self.direction = -np.sign(self.angle_left)
 
