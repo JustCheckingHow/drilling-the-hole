@@ -16,24 +16,58 @@
   			xhttp.open("GET", "http://localhost:5000?command="+command, true);
   			xhttp.send();
 		}
-            function checkInput() {
-                var event = window.event || event.which;
 
-                if (event.keyCode == 13) {
-                    event.preventDefault();
-					line = document.getElementById("console").value
-                    addLine(line);
-					send_command(line)
-                    document.getElementById("console").value = "";
-                }
+        function checkInput() {
+            var event = window.event || event.which;
 
-                document.getElementById("console").style.height = (document.getElementById("console").scrollHeight) + "px";
+            if (event.keyCode == 13) {
+                event.preventDefault();
+                line = document.getElementById("command").value
+                addLine(line+"\n");
+                send_command(line)
+                document.getElementById("command").value = "";
             }
 
-            function addLine(line) {
-                var textNode = document.createTextNode(line);
-                document.getElementById("consoletext").appendChild(textNode);
-            }
+            document.getElementById("command").style.height = (document.getElementById("command").scrollHeight) + "px";
+        }
+
+        function addLine(line) {
+            var textNode = document.createTextNode(line);
+            document.getElementById("terminal").appendChild(textNode);
+        }
+
+        function turnButton(){
+            turn_val = document.getElementById("turn_value").value
+            turn_line = "TURN "+turn_val
+            addLine(turn_line+"\n")
+            send_command(turn_line)
+        }
+
+        function stopButton() {
+            stop_line = "STOP"
+            addLine(stop_line+"\n")
+            send_command(stop_line)
+        }
+
+        function pauseButton() {
+            pause_val = document.getElementById("pause_value").value
+            pause_line = "TURN "+pause_val
+            addLine(pause_line+"\n")
+            send_command(pause_line)
+        }
+
+        function baseButton() {
+            base_line = "BASE"
+            addLine(base_line+"\n")
+            send_command(base_line)
+        }
+
+        function speedScroll(){
+            speed_val = document.getElementById("speed_range").value
+            speed_line = "SPEED "+speed_val
+            addLine(speed_line+"\n")
+            send_command(speed_line)
+        }
         </script>
             
         <title>Bosch Monitor Console</title>
@@ -60,27 +94,27 @@
                             style="width:20em;height:30em;resize:none;-webkit-border-radius: 5px;-moz-border-radius: 5px;border-radius: 5px;"></textarea><br />
                         </div>
                         <div class="col s2">Input: </div>
-						<div class="col s9"><input placeholder="Enter command..." id="command" type="text" class="validate"></div>
+						<div class="col s9"><input placeholder="Enter command..." id="command" type="text" class="validate" onkeypress="checkInput()"></div>
 					</div>
 					<div class="col s12 m6 right-align">
 						<div class="row">
 							<div class="col s2">Speed: </div>
-							<div class="col s9"><input type="range" id="test5" min="0" max="50" /></div>
+							<div class="col s9"><input type="range" id="speed_range" min="0" max="50" onchange="speedScroll()"/></div>
 							<div class="col s1"></div>
 						</div>
 						<div class="row">
 							<div class="col s1"></div>
-      						<div class="col s2"><a class="waves-effect waves-light btn">BASE</a></div>
+      						<div class="col s2"><a class="waves-effect waves-light btn" onclick="baseButton()">BASE</a></div>
 							<div class="col s1"></div>
-      						<div class="col s2"><a class="waves-effect waves-light btn">TURN</a></div>
+      						<div class="col s2"><a class="waves-effect waves-light btn" onclick="turnButton()">TURN</a></div>
 							<div class="col s1"></div>
       						<div class="col s4" style="position:relative; top:-10px;"><input placeholder="Rotation degrees" id="turn_value" type="text" class="validate"></div>
 						</div>
 						<div class="row">
 							<div class="col s1"></div>
-      						<div class="col s2"><a class="waves-effect waves-light btn" style="background-color:rgb(166, 38, 42)">STOP</a></div>
+      						<div class="col s2"><a class="waves-effect waves-light btn" style="background-color:rgb(166, 38, 42)" onclick="stopButton()">STOP</a></div>
 							<div class="col s1"></div>
-     					 	<div class="col s2"><a class="waves-effect waves-light btn">PAUSE</a></div>
+     					 	<div class="col s2"><a class="waves-effect waves-light btn" onclick="pauseButton()">PAUSE</a></div>
 							<div class="col s1"></div>
       						<div class="col s4" style="position:relative; top:-10px;"><input placeholder="Time" id="pause_value" type="text" class="validate"></div>
 						</div>	
