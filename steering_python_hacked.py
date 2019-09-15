@@ -63,8 +63,8 @@ class SteeringPythonHacked():
     def stop(self):
         self.axis.Movement.MoveFrequency(0, self.accel_deccel, self.accel_deccel, 0)
 
-    def move_frequency_wrapper(self, freq, accel, deccel, jerk):
-        self.axis.Movement.MoveFrequency(freq, accel, deccel, jerk)
+    def move_frequency_wrapper(self, freq, accel, deccel):
+        self.axis.Movement.MoveFrequency(freq, accel, deccel)
 
     def move_velocity_wrapper(self, velocity, accel, deccel, jerk):
         self.axis.Movement.MoveVelocity(velocity, accel, deccel, jerk)
