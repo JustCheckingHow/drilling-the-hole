@@ -25,11 +25,12 @@ class Solver:
 
         self.starting_position = 0
         self.movement_angle = 0.125
-        self.ctr_clockwise_inertia = 0.15
-        self.clockwise_inertia = 0.19
+        self.ctr_clockwise_inertia = 0.1
+        self.clockwise_inertia = 0.1
 
         self.runup_time = 0.3
         self.solved = False
+        self.angle_left = 90/360
 
         self.direction = -1
 
@@ -59,16 +60,37 @@ class Solver:
                     self.env.step(0, True)
                     self.solved = True
 
-    # def homing(self, tm, position):
-    def zeroangle(self, tm , position):
+    def move_angle(self, tm, position):
         if tm == 0:
-            self.starting_position = position
-            self.env.step(self.direction, False)
+            self.direction = -np.sign(self.angle_left)
 
-        if tm >= self.runup_time and self.starting_position+self.movement_angle > position > self.starting_position+self.movement_angle-self.ctr_clockwise_inertia:
-            print(f"Position: {position}")
-            self.env.step(0, True)
-            self.solved = True
+            if self.angle_left > 0:
+                self.angle_left -= self.ctr_clockwise_inertia
+            else:
+                self.angle_left += self.ctr_clockwise_inertia
+
+            self.last_pos = position
+            self.env.step(self.direction, False)
+        else:
+            print(self.angle_left)
+
+            self.angle_left -= ((position-self.last_pos) % 1)*self.direction
+            self.last_pos = position
+            if (self.angle_left < 0.01 and self.direction == 1) or (self.angle_left>-0.01 and self.direction == -1):
+                print(f"Position: {position}")
+                self.env.step(0, True)
+                self.solved = True
+
+    # def homing(self, tm, position):
+    # def zeroangle(self, tm , position):
+    #     if tm == 0:
+    #         self.starting_position = position
+    #         self.env.step(self.direction, False)
+    #
+    #     if tm >= self.runup_time and self.starting_position+self.movement_angle > position > self.starting_position+self.movement_angle-self.ctr_clockwise_inertia:
+    #         print(f"Position: {position}")
+    #         self.env.step(0, True)
+    #         self.solved = True
 
     def reset(self):
         self.direction *= -1
