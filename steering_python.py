@@ -35,7 +35,3 @@ class SteeringPython(SteeringInterface):
 
     def stop(self):
         self.client.publish("move", "stop")
-
-
-
-
