@@ -13,7 +13,7 @@
   			   		document.getElementById("demo").innerHTML = this.responseText;
   			 	 }
   			};
-  			xhttp.open("GET", encodeURIComponent("http://localhost:5000?command="+command), true);
+  			xhttp.open("GET", "http://localhost:5000?command="+encodeURIComponent(command), true);
   			xhttp.send();
 		}
 
