@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+from video_tracker import ScreenCap
 
 image_hsv = None  # global ;(
 pixel = (20, 60, 80)  # some stupid default
@@ -23,9 +24,9 @@ def main():
     import sys
     global image_hsv, pixel  # so we can use it in mouse callback
 
-    vcap = cv2.VideoCapture('output_left1pink.mp4')
-
-    ret, image_src = vcap.read()
+    # vcap = cv2.VideoCapture('output_left1pink.mp4')
+    vcap = ScreenCap()
+    image_src = vcap.read()
     cv2.imshow("bgr", image_src)
 
     ## NEW ##

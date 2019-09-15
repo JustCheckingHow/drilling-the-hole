@@ -1,21 +1,39 @@
 import cv2
 import numpy as np
 import imutils
-import math 
+import math
 from solver import Solver
 from bosh_env import Environment
+import numpy as np
+import cv2
+from mss import mss
+from PIL import Image
+import time
+
+sct = mss()
+
+
+class ScreenCap:
+    def read(self):
+        w, h = 768, 432
+        monitor = {'top': 410, 'left': 1753, 'width': w, 'height': h}
+        img = Image.frombytes('RGB', (w, h), sct.grab(monitor).rgb)
+        # img = np.array(img)[:, :, [2, 1, 0]]
+        return np.array(img)
 
 
 class VideoTracker:
     def __init__(self, video_stream):
-        self.vcap = cv2.VideoCapture(video_stream)
-        # self.solver = Solver(Environment())
+        # self.vcap = cv2.VideoCapture(video_stream)
+        self.solver = Solver(Environment())
+        self.vcap = ScreenCap()
+        self.large_circle = None
 
     def calc_dist(self, p1, p2):
-        return math.sqrt((p1[0]-p2[0])**2 + (p1[1] - p2[1])**2)
+        return math.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2)
 
     def which_angle(self, tris, tracker_center):
-        closest = None 
+        closest = None
         closest_dist = 9999999
         for p, ang in tris:
             dist = self.calc_dist(p, tracker_center)
@@ -29,25 +47,28 @@ class VideoTracker:
         Image must be in greyscale 
         """
         circles = cv2.HoughCircles(img, cv2.HOUGH_GRADIENT, 1.2, 100, 140, 150,
-                                140)
+                                   140)
+        circle_mask = np.zeros(img.shape[:2], dtype='uint8')
 
         large_circle = None
         if circles is not None:
             # convert the (x, y) coordinates and radius of the circles to integers
             circles = np.round(circles[0, :]).astype("int")
+            print(circles)
             # loop over the (x, y) coordinates and radius of the circles
-            for (x, y, r) in circles:
-                large_circle = (x, y, r)
-                # draw the circle in the output image, then draw a rectangle
-                # corresponding to the center of the circle
-                cv2.circle(img, (x, y), r, (0, 255, 0), 4)
-                cv2.rectangle(img, (x - 5, y - 5), (x + 5, y + 5), (0, 128, 255),
-                            -1)
-        circle_mask = np.zeros(img.shape[:2], dtype='uint8')
+            try:
+                for (x, y, r) in circles:
+                    large_circle = (x, y, r)
+                    # draw the circle in the output image, then draw a rectangle
+                    # corresponding to the center of the circle
+                    cv2.circle(img, (x, y), r, (0, 255, 0), 4)
+                    cv2.rectangle(img, (x - 5, y - 5), (x + 5, y + 5), (0, 128, 255), -1)
+            except TypeError:
+                return (0, 0, 1), circle_mask
         cv2.circle(circle_mask, tuple(large_circle[:2]), large_circle[-1], 255, -1)
-        masked_img = cv2.bitwise_and(img, img, mask=circle_mask)
-        return large_circle, masked_img
+        # masked_img = cv2.bitwise_and(img, img, mask=circle_mask)
 
+        return large_circle, circle_mask
 
     def image_get_angles(self, img, large_circle):
         ANGLE_RESOLUTION = 5  # degs
@@ -77,31 +98,35 @@ class VideoTracker:
             tris.append(((xp2, yp2), angp))
         return tris
 
-
     def run_tracking(self):
-        while (self.vcap.isOpened()):
-            ret, frame = self.vcap.read()
+        # while (self.vcap.isOpened()):
+        while True:
+            # ret, frame = self.vcap.read()
+            frame = self.vcap.read()
             frame = cv2.resize(frame, (int(800), int(480)))
             h, w, ch = frame.shape
             # converting from BGR to HSV color space
             hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
             # Range for upper range
-            
-            lower_red = np.array([145, 210, 100])
-            upper_red = np.array([169, 242, 195])
-            
-            mask = cv2.inRange(hsv, lower_red, upper_red)
 
+            lower_red = np.array([125, 140, 94])
+            upper_red = np.array([150, 186, 190])
+
+            mask = cv2.inRange(hsv, lower_red, upper_red)
             # Generating the final mask to detect red color
             res1 = cv2.bitwise_and(frame, frame, mask=mask)
-            gray = cv2.cvtColor(res1, cv2.COLOR_BGR2GRAY)
+            # res1  has color mask
+            res1_gray = cv2.cvtColor(res1, cv2.COLOR_BGR2GRAY)
 
             frame_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            large_circle, frame_gray = self.detect_large_circle(frame_gray)
-            tris = self.image_get_angles(frame, large_circle)
-
-            cnts = cv2.findContours(gray, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            if self.large_circle is None:
+                self.large_circle, self.large_circle_mask = self.detect_large_circle(frame_gray)
+            frame = cv2.bitwise_and(frame, frame, mask=self.large_circle_mask)
+            frame_limited = cv2.bitwise_and(frame, frame, mask=mask)
+            tris = self.image_get_angles(frame, self.large_circle)
+            frame_limited_gray = cv2.cvtColor(frame_limited, cv2.COLOR_BGR2GRAY)
+            cnts = cv2.findContours(frame_limited_gray, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
             cnts = imutils.grab_contours(cnts)
             center = None
             text = f"Angle: None"
@@ -123,19 +148,20 @@ class VideoTracker:
                     angle = self.which_angle(tris, (x, y))
                     text = f"Angle: {angle}"
 
-                    current_ms = self.vcap.get(cv2.CAP_PROP_POS_MSEC)
-                    # self.solver.zero(current_ms, angle/360)
+                    # current_ms = self.vcap.get(cv2.CAP_PROP_POS_MSEC)
+                    tm = time.time()
+                    self.solver.zero(tm, angle/360)
 
                 except ZeroDivisionError:
                     continue
 
             cv2.putText(frame, text, (10, h - 20),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
-            cv2.imshow('Res', frame_gray)
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
+            cv2.imshow('Res', frame)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
 
-        self.vcap.release()
+        # self.vcap.release()
         cv2.destroyAllWindows()
 
 
