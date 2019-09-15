@@ -80,13 +80,13 @@ class CommandInterpreter:
     def action_base(self):
         self.sp.return_to_base()
 
-
-ci = CommandInterpreter()
-ci.interpreter("SPEED 30")
-ci.interpreter("TURN -50")
-ci.interpreter("TURN -30")
-ci.interpreter("SPEED 10")
-ci.interpreter("TURN +370")
-ci.interpreter("PAUSE 476")
-ci.interpreter("STOP")
-ci.interpreter("BASE")
+if __name__ == "__main__":
+    ci = CommandInterpreter()
+    ci.interpreter("SPEED 30")
+    ci.interpreter("TURN -50")
+    ci.interpreter("TURN -30")
+    ci.interpreter("SPEED 10")
+    ci.interpreter("TURN +370")
+    ci.interpreter("PAUSE 476")
+    ci.interpreter("STOP")
+    ci.interpreter("BASE")
