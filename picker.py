@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
-from video_tracker import ScreenCap
+from video_tracker import ScreenCap, Config
+import csv
 
 image_hsv = None  # global ;(
 pixel = (20, 60, 80)  # some stupid default
@@ -15,6 +16,9 @@ def pick_color(event, x, y, flags, param):
         upper = np.array([pixel[0] + 10, pixel[1] + 10, pixel[2] + 40])
         lower = np.array([pixel[0] - 10, pixel[1] - 10, pixel[2] - 40])
         print(pixel, lower, upper)
+        config = Config()
+        config.set("pixels_lower", lower)
+        config.set("pixels_upper", upper)
 
         image_mask = cv2.inRange(image_hsv, lower, upper)
         cv2.imshow("mask", image_mask)
