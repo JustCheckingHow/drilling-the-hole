@@ -24,12 +24,14 @@ class Solver:
         self.position_sum = 0
 
         self.starting_position = 0
-        self.ctr_clockwise_inertia = 0.15
-        self.clockwise_inertia = 0.15
+        self.ctr_clockwise_inertia = 0.17
+        self.clockwise_inertia = 0.17
+        # self.ctr_clockwise_inertia = 0.20
+        # self.clockwise_inertia = 0.22
 
         self.runup_time = 0.3
         self.solved = False
-        self.angle_left = 90/360
+        self.angle_left = 750/360
 
         self.direction = -1
 

@@ -50,11 +50,11 @@ class VideoTracker:
         self.vcap = ScreenCap()
         self.config = Config()
         self.large_circle = None
-        self.frame_no=0
+        self.frame_no = 0
         self.time = None
         self.enable_calibration = False
         self.calibrated = False
-        self.function = self.solver.move_angle
+        self.function = self.solver.zeroero
         self.chain = []
 
     def calc_dist(self, p1, p2):

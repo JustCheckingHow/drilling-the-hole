@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from video_tracker import ScreenCap, Config
+from zero import ScreenCap, Config
 import csv
 
 image_hsv = None  # global ;(
