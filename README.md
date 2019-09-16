@@ -1,5 +1,5 @@
 # drilling-the-hole
-Solution for Bosch's "WE MOVE. YOU WIN" contest on HackYeah 2019.
+Solution for Bosch Rexroth's "WE MOVE. YOU WIN" contest on HackYeah 2019.
 
 ### Setup
 Camera feed is uglily read from the screen. You need a live stream opened in another window, for example a web camera interface or a config program.
