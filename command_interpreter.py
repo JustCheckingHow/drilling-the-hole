@@ -8,7 +8,6 @@ class CommandInterpreter:
         self.list_of_instructions = []
         self.SPEED = 0
 
-
     def interpreter(self, command: str):
         print("command: ", command)
         try:
@@ -30,11 +29,12 @@ class CommandInterpreter:
                     print("PAUSE")
                 elif cmd == "SPEED":
                     print("SPEED")
-                    self.list_of_instructions.append(["SPEED", int(command_words[1])])
+                    self.list_of_instructions.append(
+                        ["SPEED", int(command_words[1])])
                 elif cmd == "STOP":
                     print("STOP")
                     self.list_of_instructions.append(["STOP"])
-
+                    self.list_of_instructions = []
                 elif cmd == "BASE":
                     print("BASE")
                     self.list_of_instructions.append(["BASE"])

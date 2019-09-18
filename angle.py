@@ -12,6 +12,7 @@ import time
 import csv
 import sys
 
+
 sct = mss()
 
 
@@ -40,13 +41,14 @@ class ScreenCap:
         w, h = 768, 432
         monitor = {'top': 410, 'left': 1753, 'width': w, 'height': h}
         img = Image.frombytes('RGB', (w, h), sct.grab(monitor).rgb)
-        # img = np.array(img)[:, :, [2, 1, 0]]
         return np.array(img)
 
 
 class VideoTracker:
+    """
+    duplicate of video_tracker class
+    """
     def __init__(self, video_stream, angle):
-        # self.vcap = cv2.VideoCapture(video_stream)
         self.solver = Solver(Environment())
         self.vcap = ScreenCap()
         self.config = Config()
@@ -99,8 +101,6 @@ class VideoTracker:
             except TypeError:
                 return (0, 0, 1), circle_mask
         cv2.circle(circle_mask, tuple(large_circle[:2]), large_circle[-1], 255, -1)
-        # masked_img = cv2.bitwise_and(img, img, mask=circle_mask)
-
         return large_circle, circle_mask
 
     def image_get_angles(self, img, large_circle):
@@ -115,16 +115,11 @@ class VideoTracker:
             # minute
             xp = int(r * np.sin(ang * (np.pi / 180))) + x
             yp = int(r * np.cos(ang * (np.pi / 180))) + y
-            # xpn = int(r * np.sin(angles[(i + 1) % angles_len] * (np.pi / 180))) + x
-            # ypn = int(r * np.cos(angles[(i + 1) % angles_len] * (np.pi / 180))) + y
             cv2.circle(img, (xp, yp), 3, (int(ang), 0, 0), -1)
             # reflect a point
             angp = 180 + ang
-            # angp_rev = 180 + angles[(i + 1) % angles_len]
             xp2 = int(r * np.sin(angp * (np.pi / 180))) + x
             yp2 = int(r * np.cos(angp * (np.pi / 180))) + y
-            # xp2n = int(r * np.sin(angp_rev * (np.pi / 180))) + x
-            # yp2n = int(r * np.cos(angp_rev * (np.pi / 180))) + y
             cv2.circle(img, (xp2, yp2), 3, (0, int(ang), 255), -1)
             cv2.line(img, (xp, yp), (xp2, yp2), (255, 0, 0))
             tris.append(((xp, yp), ang))
@@ -142,9 +137,7 @@ class VideoTracker:
         time.sleep(0.3)
 
     def run_tracking(self):
-        # while (self.vcap.isOpened()):
         while True:
-            # ret, frame = self.vcap.read()
             frame = self.vcap.read()
             frame = cv2.resize(frame, (int(800), int(480)))
             h, w, ch = frame.shape
@@ -193,7 +186,6 @@ class VideoTracker:
                     angle = self.which_angle(tris, (x, y))
                     text = f"Angle: {angle}"
 
-                    # current_ms = self.vcap.get(cv2.CAP_PROP_POS_MSEC)
                     if self.time is None:
                         self.function(0, angle/360)
                         self.time = time.time()
@@ -210,7 +202,6 @@ class VideoTracker:
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
 
-        # self.vcap.release()
         cv2.destroyAllWindows()
 
 
