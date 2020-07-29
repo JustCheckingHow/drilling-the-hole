@@ -1,6 +1,8 @@
 # drilling-the-hole
 Solution for Bosch Rexroth's "WE MOVE. YOU WIN" contest on HackYeah 2019.
 
+![image](unknown.png)
+
 ### Setup
 Camera feed is uglily read from the screen. You need a live stream opened in another window, for example a web camera interface or a config program.
 Edit the `zero.py` and `angle.py` (lines 39, 40) with new stream coordinates. (We've decided on this way, because the camera
